@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kartu Ucapan Ulang Tahun</title>
+    <style>
+        :root {
+            --primary-color: #E0BBE4;
+            --secondary-color: #D291BC;
+            --accent-color: #FEC8D8;
+            --text-color: #957DAD;
+            --background-color: #f8f9fa;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            padding: 20px;
+            background: linear-gradient(135deg, #c2e9fb 0%, #a1c4fd 100%);
+        }
+
+        .card-container {
+            perspective: 1500px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .card {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            transform-style: preserve-3d;
+            transition: transform 1s;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .card.open {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .card-front {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            text-align: center;
+        }
+
+        .card-back {
+            background: white;
+            transform: rotateY(180deg);
+            padding: 30px;
+            text-align: center;
+        }
+
+        .envelope {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 20px;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.5s ease-out;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            color: white;
+            opacity: 1;
+        }
+
+        .envelope.open {
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+
+        .open-text, .click-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .balloon {
+            position: absolute;
+            width: 40px;
+            height: 50px;
+            border-radius: 50%;
+            animation: float 4s ease-in-out infinite;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+        }
+
+        .balloon::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.6);
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #balloon1 { background-color: #FFC4C6; left: 10%; top: 20%; animation-delay: 0s; }
+        #balloon2 { background-color: #7DD5FF; right: 10%; top: 30%; animation-delay: 0.5s; }
+        #balloon3 { background-color: #FAE390; left: 15%; bottom: 20%; animation-delay: 1s; }
+        #balloon4 { background-color: #98D69B; right: 15%; bottom: 30%; animation-delay: 1.5s; }
+
+        .gift-box {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 30px auto;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+        }
+
+        .gift-box-lid {
+            position: absolute;
+            width: 100%;
+            height: 25px;
+            top: -15px;
+            background-color: var(--primary-color);
+            transform-origin: bottom;
+            transition: transform 0.5s;
+            transform: rotateX(0);
+            border-radius: 5px 5px 0 0;
+        }
+
+        .gift-box-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: var(--secondary-color);
+            border-radius: 5px;
+        }
+
+        .gift-box-ribbon {
+            position: absolute;
+            width: 20px;
+            height: 100%;
+            background-color: var(--accent-color);
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .gift-box-ribbon-horizontal {
+            position: absolute;
+            width: 100%;
+            height: 20px;
+            background-color: var(--accent-color);
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .gift-box.open .gift-box-lid {
+            transform: rotateX(-110deg);
+        }
+
+        .message {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .sub-message {
+            font-size: 1rem;
+            margin-bottom: 30px;
+            color: var(--text-color);
+        }
+
+        .cake-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .heart-icon {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            animation: pulse 1.5s infinite;
+        }
+
+        .name {
+            margin-top: 10px;
+            font-style: italic;
+            color: var(--accent-color);
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 20px;
+            animation: confetti-fall 5s linear forwards;
+            z-index: -1;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .music-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .music-icon {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Custom animations for gift unwrapping */
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0;
+        }
+
+        #sparkle1 { top: 20%; left: 20%; animation: sparkle 1s infinite 0.1s; }
+        #sparkle2 { top: 30%; right: 20%; animation: sparkle 1s infinite 0.3s; }
+        #sparkle3 { bottom: 20%; left: 30%; animation: sparkle 1s infinite 0.5s; }
+        #sparkle4 { bottom: 30%; right: 30%; animation: sparkle 1s infinite 0.7s; }
+
+        @media (max-width: 1000px) {
+            .card {
+                height: 500px;
+            }
+            
+            .gift-box {
+                width: 60px;
+                height: 60px;
+                margin: 20px auto;
+            }
+            
+            .message {
+                font-size: 1.0rem;
+            }
+            
+            .sub-message {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card-container">
+        <div class="envelope" id="envelope">
+            <div>
+                <div class="open-text">Klik untuk Membuka Undangan</div>
+                <div class="cake-icon">🎁</div>
+            </div>
+        </div>
+        <div class="card" id="card">
+            <div class="card-face card-front">
+                <div class="balloon" id="balloon1"></div>
+                <div class="balloon" id="balloon2"></div>
+                <div class="balloon" id="balloon3"></div>
+                <div class="balloon" id="balloon4"></div>
+                
+                <div class="sparkle" id="sparkle1"></div>
+                <div class="sparkle" id="sparkle2"></div>
+                <div class="sparkle" id="sparkle3"></div>
+                <div class="sparkle" id="sparkle4"></div>
+                
+                <div class="cake-icon">🎂</div>
+                <div class="click-text">Klik untuk membuka kartu</div>
+                <div class="gift-box" id="giftBox">
+                    <div class="gift-box-lid"></div>
+                    <div class="gift-box-container">
+                        <div class="gift-box-ribbon"></div>
+                        <div class="gift-box-ribbon-horizontal"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-face card-back">
+                <div class="message">Selamat Ulang Tahun Kingkong!🎉</div>
+                <div class="sub-message">
+                    Cie ultah wkwk🥳.
+                    Semoga semua doa lu yg baik2 dikabulin. Dan semoga liburan kita g wacana ya bray.
+                    Maaf ya baru ngucapin, kmrin hectic bgt sorry. Pdhl gw udh tandain di kalender hehe😔.
+                    Jd sbagai permintaan maaf gw, gw buatin ginian hehe. Semoga lu suka yaaa❤️.
+                </div>
+                <div class="heart-icon">❤️</div>
+                <div class="name">With Love, Nida Cantik😙</div>
+                <button id="playAgain">Buka Kartu Lagi</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="music-control" id="musicControl">
+        <div class="music-icon">🎵</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const envelope = document.getElementById('envelope');
+            const card = document.getElementById('card');
+            const giftBox = document.getElementById('giftBox');
+            const playAgainBtn = document.getElementById('playAgain');
+            const musicControl = document.getElementById('musicControl');
+            
+            let audio = new Audio();
+            audio.src = 'happy_birthday.mp3'; // Ganti dengan URL lagu yang sesuai
+            audio.loop = true;
+            let isMusicPlaying = false;
+            
+            // Envelope opening
+            envelope.addEventListener('click', function() {
+                envelope.classList.add('open');
+                setTimeout(createConfetti, 500, 50);
+                
+                // Start playing music automatically when envelope is opened
+                playMusic();
+            });
+            
+            // Card flipping
+            card.addEventListener('click', function() {
+                if (!envelope.classList.contains('open')) return;
+                
+                if (!card.classList.contains('open')) {
+                    card.classList.add('open');
+                    giftBox.classList.add('open');
+                    setTimeout(createConfetti, 500, 30);
+                }
+            });
+            
+            // Play again button
+            playAgainBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                resetAnimation();
+            });
+            
+            // Music control
+            musicControl.addEventListener('click', function() {
+                if (isMusicPlaying) {
+                    audio.pause();
+                    musicControl.querySelector('.music-icon').textContent = '🔇';
+                } else {
+                    playMusic();
+                }
+                isMusicPlaying = !isMusicPlaying;
+            });
+            
+            // Create confetti elements
+            function createConfetti(amount) {
+                for (let i = 0; i < amount; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.classList.add('confetti');
+                    
+                    // Random position
+                    const startX = Math.random() * window.innerWidth;
+                    
+                    // Random color
+                    const colors = ['#ff5757', '#ffde59', '#48cae4', '#4cc9f0', '#f15bb5'];
+                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    confetti.style.left = startX + 'px';
+                    confetti.style.top = '-20px';
+                    confetti.style.backgroundColor = randomColor;
+                    confetti.style.opacity = Math.random();
+                    confetti.style.animationDuration = (Math.random() * 3 + 2) + 's'; // Between 2-5s
+                    
+                    document.body.appendChild(confetti);
+                    
+                    // Remove after animation completes
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 5000);
+                }
+            }
+            
+            function resetAnimation() {
+                card.classList.remove('open');
+                giftBox.classList.remove('open');
+            }
+            
+            function playMusic() {
+                // Music won't play immediately on some browsers without user interaction
+                audio.play().then(() => {
+                    isMusicPlaying = true;
+                    musicControl.querySelector('.music-icon').textContent = '🎵';
+                }).catch(error => {
+                    console.log("Audio play failed: ", error);
+                    isMusicPlaying = false;
+                });
+            }
+            
+            // Create initial balllons outside the card
+            function createRandomBalloons() {
+                const colors = ['#ff5757', '#ffde59', '#48cae4', '#4cc9f0', '#f15bb5'];
+                
+                for (let i = 0; i < 10; i++) {
+                    const balloon = document.createElement('div');
+                    balloon.classList.add('balloon');
+                    
+                    // Random position outside the card
+                    const side = Math.random() > 0.5;
+                    const xPos = side ? -Math.random() * 100 - 50 : Math.random() * 100 + window.innerWidth;
+                    const yPos = Math.random() * window.innerHeight;
+                    
+                    // Random color
+                    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    balloon.style.backgroundColor = randomColor;
+                    balloon.style.left = xPos + 'px';
+                    balloon.style.top = yPos + 'px';
+                    balloon.style.animationDelay = (Math.random() * 2) + 's';
+                    balloon.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                    
+                    document.body.appendChild(balloon);
+                }
+            }
+            
+            createRandomBalloons();
+            
+            // Custom behavior for opening the gift box
+            giftBox.addEventListener('click', function(e) {
+                e.stopPropagation();
+                giftBox.classList.toggle('open');
+            });
+        });
+    </script>
+</body>
+</html>
